@@ -63,7 +63,8 @@
         "irc": "irc://irc.freenode.net/yii"
     },
     "require": {
-        "yiisoft/mutex": "^3.0@dev"
+        "yiisoft/mutex": "^3.0@dev",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "yiisoft/yii-core": "^3.0@dev",
