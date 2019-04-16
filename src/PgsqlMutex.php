@@ -22,7 +22,7 @@ class PgsqlMutex extends Mutex
      */
     protected $connection;
 
-    public function __construct(\PDO $connection, $autoRelease = true)
+    public function __construct(\PDO $connection, bool $autoRelease = true)
     {
         $this->connection = $connection;
         $driverName = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -42,7 +42,7 @@ class PgsqlMutex extends Mutex
      *
      * @return array contains two 16 bit integer keys
      */
-    private function getKeysFromName($name)
+    private function getKeysFromName(string $name): array
     {
         return array_values(unpack('n2', sha1($name, true)));
     }
@@ -57,7 +57,7 @@ class PgsqlMutex extends Mutex
      *
      * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
      */
-    protected function acquireLock($name, $timeout = 0)
+    protected function acquireLock(string $name, int $timeout = 0): bool
     {
         list($key1, $key2) = $this->getKeysFromName($name);
 
@@ -80,7 +80,7 @@ class PgsqlMutex extends Mutex
      *
      * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
      */
-    protected function releaseLock($name)
+    protected function releaseLock(string $name): bool
     {
         list($key1, $key2) = $this->getKeysFromName($name);
 
