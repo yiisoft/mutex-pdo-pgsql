@@ -6,7 +6,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace Yii\Mutex;
+namespace Yiisoft\Mutex;
 
 /**
  * PgsqlMutex implements mutex "lock" mechanism via PgSQL locks.

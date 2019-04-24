@@ -6,9 +6,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace Yii\Mutex\Tests;
+namespace Yiisoft\Mutex\Tests;
 
-use Yii\Mutex\PgsqlMutex;
+use Yiisoft\Mutex\PgsqlMutex;
 
 /**
  * Class PgsqlMutexTest.
