@@ -36,12 +36,18 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Yiisoft\\Mutex\\Tests\\": ["tests", "vendor/yiisoft/mutex/tests"]
+            "Yiisoft\\Mutex\\Tests\\": [
+                "tests",
+                "vendor/yiisoft/mutex/tests"
+            ]
         }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
