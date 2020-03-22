@@ -22,7 +22,7 @@ class PgsqlMutex extends Mutex
         $driverName = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
         if ($driverName !== 'pgsql') {
             throw new \InvalidArgumentException(
-                'Connection must be configured to use PgSQL database. Got '.$driverName.'.'
+                'Connection must be configured to use PgSQL database. Got ' . $driverName . '.'
             );
         }
 
