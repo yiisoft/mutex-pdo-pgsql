@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Mutex;
 
 /**
@@ -53,7 +55,7 @@ class PgsqlMutex extends Mutex
      */
     protected function acquireLock(string $name, int $timeout = 0): bool
     {
-        list($key1, $key2) = $this->getKeysFromName($name);
+        [$key1, $key2] = $this->getKeysFromName($name);
 
         return $this->retryAcquire($timeout, function () use ($key1, $key2) {
             $statement = $this->connection->prepare('SELECT pg_try_advisory_lock(:key1, :key2)');
@@ -76,7 +78,7 @@ class PgsqlMutex extends Mutex
      */
     protected function releaseLock(string $name): bool
     {
-        list($key1, $key2) = $this->getKeysFromName($name);
+        [$key1, $key2] = $this->getKeysFromName($name);
 
         $statement = $this->connection->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
         $statement->bindValue(':key1', $key1);
