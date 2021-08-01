@@ -14,8 +14,16 @@ final class PgsqlMutex implements MutexInterface
     use RetryAcquireTrait;
 
     private string $name;
-    protected PDO $connection;
+    private PDO $connection;
 
+    /**
+     * @param string $name Mutex name.
+     * @param PDO $connection PDO connection instance to use.
+     * @param bool $autoRelease Whether all locks acquired in this process (i.e. local locks) must be released
+     * automatically before finishing script execution. Defaults to true. Setting this property
+     * to true means that all locks acquired in this process must be released (regardless of
+     * errors or exceptions).
+     */
     public function __construct(string $name, PDO $connection, bool $autoRelease = true)
     {
         $this->name = $name;
@@ -78,6 +86,9 @@ final class PgsqlMutex implements MutexInterface
         $statement->bindValue(':key1', $key1);
         $statement->bindValue(':key2', $key2);
         $statement->execute();
-        $statement->fetchColumn();
+
+        if (!$statement->fetchColumn()) {
+            throw new RuntimeExceptions("Unable to release lock \"$this->name\".");
+        }
     }
 }

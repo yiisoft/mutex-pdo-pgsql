@@ -12,7 +12,7 @@ use Yiisoft\Mutex\PgsqlMutex;
 /**
  * Allows creating {@see PgsqlMutex} mutex objects.
  */
-class PgsqlMutexFactory implements MutexFactoryInterface
+final class PgsqlMutexFactory implements MutexFactoryInterface
 {
     private PDO $connection;
     private bool $autoRelease;

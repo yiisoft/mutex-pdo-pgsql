@@ -5,15 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Mutex\Tests;
 
 use PDO;
+use Yiisoft\Mutex\MutexInterface;
 use Yiisoft\Mutex\PgsqlMutex;
 
-/**
- * Class PgsqlMutexTest.
- *
- * @group mutex
- * @group db
- * @group pgsql
- */
 final class PgsqlMutexTest
 {
     use MutexTestTrait;
@@ -21,7 +15,7 @@ final class PgsqlMutexTest
     /**
      * @return PgsqlMutex
      */
-    protected function createMutex()
+    protected function createMutex(): MutexInterface
     {
         return new PgsqlMutex($this->getConnection());
     }
