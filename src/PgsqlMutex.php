@@ -4,31 +4,34 @@ declare(strict_types=1);
 
 namespace Yiisoft\Mutex;
 
+use PDO;
+
 /**
  * PgsqlMutex implements mutex "lock" mechanism via PgSQL locks.
- *
- * @see Mutex
  */
-class PgsqlMutex extends Mutex
+final class PgsqlMutex implements MutexInterface
 {
     use RetryAcquireTrait;
 
-    /**
-     * @var \PDO
-     */
-    protected $connection;
+    private string $name;
+    protected PDO $connection;
 
-    public function __construct(\PDO $connection, bool $autoRelease = true)
+    public function __construct(string $name, PDO $connection, bool $autoRelease = true)
     {
+        $this->name = $name;
         $this->connection = $connection;
-        $driverName = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $driverName = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
         if ($driverName !== 'pgsql') {
             throw new \InvalidArgumentException(
                 'Connection must be configured to use PgSQL database. Got ' . $driverName . '.'
             );
         }
 
-        parent::__construct($autoRelease);
+        if ($autoRelease) {
+            register_shutdown_function(function () {
+                $this->release();
+            });
+        }
     }
 
     /**
@@ -44,18 +47,13 @@ class PgsqlMutex extends Mutex
     }
 
     /**
-     * Acquires lock by given name.
-     *
-     * @param string $name    of the lock to be acquired.
-     * @param int    $timeout time (in seconds) to wait for lock to become released.
-     *
-     * @return bool acquiring result.
+     * {@inheritdoc}
      *
      * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
      */
-    protected function acquireLock(string $name, int $timeout = 0): bool
+    public function acquire(int $timeout = 0): bool
     {
-        [$key1, $key2] = $this->getKeysFromName($name);
+        [$key1, $key2] = $this->getKeysFromName($this->name);
 
         return $this->retryAcquire($timeout, function () use ($key1, $key2) {
             $statement = $this->connection->prepare('SELECT pg_try_advisory_lock(:key1, :key2)');
@@ -68,23 +66,18 @@ class PgsqlMutex extends Mutex
     }
 
     /**
-     * Releases lock by given name.
-     *
-     * @param string $name of the lock to be released.
-     *
-     * @return bool release result.
+     * {@inheritdoc}
      *
      * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
      */
-    protected function releaseLock(string $name): bool
+    public function release(): void
     {
-        [$key1, $key2] = $this->getKeysFromName($name);
+        [$key1, $key2] = $this->getKeysFromName($this->name);
 
         $statement = $this->connection->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
         $statement->bindValue(':key1', $key1);
         $statement->bindValue(':key2', $key2);
         $statement->execute();
-
-        return $statement->fetchColumn();
+        $statement->fetchColumn();
     }
 }
