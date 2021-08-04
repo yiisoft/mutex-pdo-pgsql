@@ -1,5 +1,5 @@
 {
-    "name": "yiisoft/mutex-db-pgsql",
+    "name": "yiisoft/mutex-pdo-pgsql",
     "type": "library",
     "description": "Yii Mutex Library - Postgres DB Driver",
     "keywords": [
@@ -9,8 +9,8 @@
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
-        "source": "https://github.com/yiisoft/mutex-db-pgsql",
-        "issues": "https://github.com/yiisoft/mutex-db-pgsql/issues",
+        "source": "https://github.com/yiisoft/mutex-pdo-pgsql",
+        "issues": "https://github.com/yiisoft/mutex-pdo-pgsql/issues",
         "forum": "http://www.yiiframework.com/forum/",
         "wiki": "http://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii"
