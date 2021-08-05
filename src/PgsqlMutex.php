@@ -74,15 +74,15 @@ final class PgsqlMutex extends Mutex
         if (!$statement->fetchColumn()) {
             throw new RuntimeExceptions("Unable to release lock \"$this->name\".");
         }
-        
+
         $this->released = true;
     }
-    
+
     public function isReleased(): bool
     {
         return $this->released;
     }
-    
+
     /**
      * Converts a string into two 16 bit integer keys using the SHA1 hash function.
      *
