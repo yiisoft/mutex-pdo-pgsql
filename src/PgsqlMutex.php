@@ -15,16 +15,13 @@ final class PgsqlMutex implements MutexInterface
 
     private string $name;
     private PDO $connection;
+    private bool $released = false;
 
     /**
      * @param string $name Mutex name.
      * @param PDO $connection PDO connection instance to use.
-     * @param bool $autoRelease Whether all locks acquired in this process (i.e. local locks) must be released
-     * automatically before finishing script execution. Defaults to true. Setting this property
-     * to true means that all locks acquired in this process must be released (regardless of
-     * errors or exceptions).
      */
-    public function __construct(string $name, PDO $connection, bool $autoRelease = true)
+    public function __construct(string $name, PDO $connection)
     {
         $this->name = $name;
         $this->connection = $connection;
@@ -34,24 +31,13 @@ final class PgsqlMutex implements MutexInterface
                 'Connection must be configured to use PgSQL database. Got ' . $driverName . '.'
             );
         }
-
-        if ($autoRelease) {
-            register_shutdown_function(function () {
-                $this->release();
-            });
-        }
     }
 
-    /**
-     * Converts a string into two 16 bit integer keys using the SHA1 hash function.
-     *
-     * @param string $name
-     *
-     * @return array contains two 16 bit integer keys
-     */
-    private function getKeysFromName(string $name): array
+    public function __destruct()
     {
-        return array_values(unpack('n2', sha1($name, true)));
+        if (!$this->released) {
+            $this->release();
+        }
     }
 
     /**
@@ -69,7 +55,12 @@ final class PgsqlMutex implements MutexInterface
             $statement->bindValue(':key2', $key2);
             $statement->execute();
 
-            return $statement->fetchColumn();
+            if ($statement->fetchColumn()) {
+                $this->released = false;
+                return true;
+            }
+
+            return false;
         });
     }
 
@@ -90,5 +81,19 @@ final class PgsqlMutex implements MutexInterface
         if (!$statement->fetchColumn()) {
             throw new RuntimeExceptions("Unable to release lock \"$this->name\".");
         }
+
+        $this->released = true;
+    }
+
+    /**
+     * Converts a string into two 16 bit integer keys using the SHA1 hash function.
+     *
+     * @param string $name
+     *
+     * @return array contains two 16 bit integer keys
+     */
+    private function getKeysFromName(string $name): array
+    {
+        return array_values(unpack('n2', sha1($name, true)));
     }
 }
