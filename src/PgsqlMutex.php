@@ -9,7 +9,7 @@ use PDO;
 /**
  * PgsqlMutex implements mutex "lock" mechanism via PgSQL locks.
  */
-final class PgsqlMutex extends Mutex
+final class PgsqlMutex implements MutexInterface
 {
     use RetryAcquireTrait;
 
@@ -30,6 +30,13 @@ final class PgsqlMutex extends Mutex
             throw new \InvalidArgumentException(
                 'Connection must be configured to use PgSQL database. Got ' . $driverName . '.'
             );
+        }
+    }
+    
+    public function __destruct()
+    {
+        if (!$this->released) {
+            $this->release();
         }
     }
 
@@ -76,11 +83,6 @@ final class PgsqlMutex extends Mutex
         }
 
         $this->released = true;
-    }
-
-    public function isReleased(): bool
-    {
-        return $this->released;
     }
 
     /**
