@@ -32,7 +32,7 @@ final class PgsqlMutex implements MutexInterface
             );
         }
     }
-    
+
     public function __destruct()
     {
         if (!$this->released) {
