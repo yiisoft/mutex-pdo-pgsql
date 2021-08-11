@@ -2,12 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Mutex;
+namespace Yiisoft\Mutex\Pgsql;
 
+use InvalidArgumentException;
 use PDO;
+use RuntimeException;
+use Yiisoft\Mutex\MutexInterface;
+use Yiisoft\Mutex\RetryAcquireTrait;
+
+use function array_values;
+use function sha1;
+use function unpack;
 
 /**
- * PgsqlMutex implements mutex "lock" mechanism via PgSQL locks.
+ * PgsqlMutex implements mutex "lock" mechanism via PostgresSQL locks.
  */
 final class PgsqlMutex implements MutexInterface
 {
@@ -15,7 +23,6 @@ final class PgsqlMutex implements MutexInterface
 
     private string $name;
     private PDO $connection;
-    private bool $released = false;
 
     /**
      * @param string $name Mutex name.
@@ -25,25 +32,24 @@ final class PgsqlMutex implements MutexInterface
     {
         $this->name = $name;
         $this->connection = $connection;
+
+        /** @var string $driverName */
         $driverName = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+
         if ($driverName !== 'pgsql') {
-            throw new \InvalidArgumentException(
-                'Connection must be configured to use PgSQL database. Got ' . $driverName . '.'
-            );
+            throw new InvalidArgumentException("MySQL connection instance should be passed. Got $driverName.");
         }
     }
 
     public function __destruct()
     {
-        if (!$this->released) {
-            $this->release();
-        }
+        $this->release();
     }
 
     /**
      * {@inheritdoc}
      *
-     * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
+     * @see https://www.postgresql.org/docs/13/functions-admin.html
      */
     public function acquire(int $timeout = 0): bool
     {
@@ -55,19 +61,14 @@ final class PgsqlMutex implements MutexInterface
             $statement->bindValue(':key2', $key2);
             $statement->execute();
 
-            if ($statement->fetchColumn()) {
-                $this->released = false;
-                return true;
-            }
-
-            return false;
+            return (bool) $statement->fetchColumn();
         });
     }
 
     /**
      * {@inheritdoc}
      *
-     * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
+     * @see https://www.postgresql.org/docs/13/functions-admin.html
      */
     public function release(): void
     {
@@ -79,18 +80,16 @@ final class PgsqlMutex implements MutexInterface
         $statement->execute();
 
         if (!$statement->fetchColumn()) {
-            throw new RuntimeExceptions("Unable to release lock \"$this->name\".");
+            throw new RuntimeException("Unable to release lock \"$this->name\".");
         }
-
-        $this->released = true;
     }
 
     /**
-     * Converts a string into two 16 bit integer keys using the SHA1 hash function.
+     * Converts a string into two 16-bit integer keys using the SHA1 hash function.
      *
-     * @param string $name
+     * @param string $name The string to convert.
      *
-     * @return array contains two 16 bit integer keys
+     * @return array Contains two 16-bit integer keys.
      */
     private function getKeysFromName(string $name): array
     {
