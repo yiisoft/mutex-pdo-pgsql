@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Mutex\File\Pgsql;
+namespace Yiisoft\Mutex\Pgsql;
 
 use PDO;
 use Yiisoft\Mutex\MutexFactory;
