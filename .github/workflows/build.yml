@@ -35,7 +35,7 @@ jobs:
         image: postgres:${{ matrix.pgsql }}
         env:
           POSTGRES_USER: root
-          POSTGRES_PASSWORD: root
+          POSTGRES_PASSWORD: root-password
           POSTGRES_DB: yiitest
         ports:
           - 5432:5432
