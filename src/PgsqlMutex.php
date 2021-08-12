@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Mutex;
 
 use PDO;
+use RuntimeException;
 
 /**
  * PgsqlMutex implements mutex "lock" mechanism via PgSQL locks.
@@ -79,7 +80,7 @@ final class PgsqlMutex implements MutexInterface
         $statement->execute();
 
         if (!$statement->fetchColumn()) {
-            throw new RuntimeExceptions("Unable to release lock \"$this->name\".");
+            throw new RuntimeException("Unable to release lock \"$this->name\".");
         }
 
         $this->released = true;
