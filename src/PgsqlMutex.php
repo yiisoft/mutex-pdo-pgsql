@@ -45,7 +45,7 @@ final class PgsqlMutex extends Mutex
      *
      * @see https://www.postgresql.org/docs/13/functions-admin.html
      */
-    public function acquireLock(int $timeout = 0): bool
+    protected function acquireLock(int $timeout = 0): bool
     {
         $statement = $this->connection->prepare('SELECT pg_try_advisory_lock(:key1, :key2)');
         $statement->bindValue(':key1', $this->lockKeys[0]);
@@ -60,7 +60,7 @@ final class PgsqlMutex extends Mutex
      *
      * @see https://www.postgresql.org/docs/13/functions-admin.html
      */
-    public function releaseLock(): bool
+    protected function releaseLock(): bool
     {
         $statement = $this->connection->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
         $statement->bindValue(':key1', $this->lockKeys[0]);
