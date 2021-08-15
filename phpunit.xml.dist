@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./vendor/autoload.php"
-    backupGlobals="true"
+<phpunit
+    bootstrap="vendor/autoload.php"
     colors="true"
     verbose="true"
     failOnRisky="true"
@@ -8,20 +8,23 @@
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
-    stopOnFailure="false">
+    stopOnFailure="false"
+    executionOrder="random"
+    resolveDependencies="true"
+>
+    <php>
+        <ini name="error_reporting" value="-1"/>
+    </php>
+
     <testsuites>
-        <testsuite name="Yii Mutex - Postgres Driver tests">
+        <testsuite name="Yii Postgres Mutex tests">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
-            <directory>./</directory>
-            <exclude>
-                <directory>./tests</directory>
-                <directory>./vendor</directory>
-            </exclude>
-        </whitelist>
-    </filter>
+    <coverage>
+        <include>
+            <directory>./src</directory>
+        </include>
+    </coverage>
 </phpunit>

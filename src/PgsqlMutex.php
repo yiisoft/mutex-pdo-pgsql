@@ -2,21 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Mutex;
+namespace Yiisoft\Mutex\Pgsql;
 
+use InvalidArgumentException;
 use PDO;
-use RuntimeException;
+use Yiisoft\Mutex\Mutex;
+
+use function array_values;
+use function sha1;
+use function unpack;
 
 /**
- * PgsqlMutex implements mutex "lock" mechanism via PgSQL locks.
+ * PgsqlMutex implements mutex "lock" mechanism via PostgreSQL locks.
  */
-final class PgsqlMutex implements MutexInterface
+final class PgsqlMutex extends Mutex
 {
-    use RetryAcquireTrait;
-
-    private string $name;
+    private array $lockKeys;
     private PDO $connection;
-    private bool $released = false;
 
     /**
      * @param string $name Mutex name.
@@ -24,77 +26,47 @@ final class PgsqlMutex implements MutexInterface
      */
     public function __construct(string $name, PDO $connection)
     {
-        $this->name = $name;
+        // Converts a string into two 16-bit integer keys using the SHA1 hash function.
+        $this->lockKeys = array_values(unpack('n2', sha1($name, true)));
         $this->connection = $connection;
+
+        /** @var string $driverName */
         $driverName = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+
         if ($driverName !== 'pgsql') {
-            throw new \InvalidArgumentException(
-                'Connection must be configured to use PgSQL database. Got ' . $driverName . '.'
-            );
+            throw new InvalidArgumentException("PostgreSQL connection instance should be passed. Got \"$driverName\".");
         }
-    }
 
-    public function __destruct()
-    {
-        if (!$this->released) {
-            $this->release();
-        }
+        parent::__construct(self::class, $name);
     }
 
     /**
      * {@inheritdoc}
      *
-     * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
+     * @see https://www.postgresql.org/docs/13/functions-admin.html
      */
-    public function acquire(int $timeout = 0): bool
+    protected function acquireLock(int $timeout = 0): bool
     {
-        [$key1, $key2] = $this->getKeysFromName($this->name);
-
-        return $this->retryAcquire($timeout, function () use ($key1, $key2) {
-            $statement = $this->connection->prepare('SELECT pg_try_advisory_lock(:key1, :key2)');
-            $statement->bindValue(':key1', $key1);
-            $statement->bindValue(':key2', $key2);
-            $statement->execute();
-
-            if ($statement->fetchColumn()) {
-                $this->released = false;
-                return true;
-            }
-
-            return false;
-        });
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @see http://www.postgresql.org/docs/9.0/static/functions-admin.html
-     */
-    public function release(): void
-    {
-        [$key1, $key2] = $this->getKeysFromName($this->name);
-
-        $statement = $this->connection->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
-        $statement->bindValue(':key1', $key1);
-        $statement->bindValue(':key2', $key2);
+        $statement = $this->connection->prepare('SELECT pg_try_advisory_lock(:key1, :key2)');
+        $statement->bindValue(':key1', $this->lockKeys[0]);
+        $statement->bindValue(':key2', $this->lockKeys[1]);
         $statement->execute();
 
-        if (!$statement->fetchColumn()) {
-            throw new RuntimeException("Unable to release lock \"$this->name\".");
-        }
-
-        $this->released = true;
+        return (bool) $statement->fetchColumn();
     }
 
     /**
-     * Converts a string into two 16 bit integer keys using the SHA1 hash function.
+     * {@inheritdoc}
      *
-     * @param string $name
-     *
-     * @return array contains two 16 bit integer keys
+     * @see https://www.postgresql.org/docs/13/functions-admin.html
      */
-    private function getKeysFromName(string $name): array
+    protected function releaseLock(): bool
     {
-        return array_values(unpack('n2', sha1($name, true)));
+        $statement = $this->connection->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
+        $statement->bindValue(':key1', $this->lockKeys[0]);
+        $statement->bindValue(':key2', $this->lockKeys[1]);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
     }
 }
