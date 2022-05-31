@@ -86,7 +86,9 @@ final class PgsqlMutexTest extends TestCase
         unset($mutex);
 
         [$key1, $key2] = array_values(unpack('n2', sha1($mutexName, true)));
-        $statement = $this->connection()->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
+        $statement = $this
+            ->connection()
+            ->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
         $statement->bindValue(':key1', $key1);
         $statement->bindValue(':key2', $key2);
         $statement->execute();
