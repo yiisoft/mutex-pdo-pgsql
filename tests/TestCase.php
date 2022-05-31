@@ -37,7 +37,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function isFreeLock(PgsqlMutex $mutex, string $name): bool
     {
-        $locks = (new ReflectionClass($mutex))->getParentClass()->getStaticPropertyValue('currentProcessLocks');
+        $locks = (new ReflectionClass($mutex))
+            ->getParentClass()
+            ->getStaticPropertyValue('currentProcessLocks');
 
         return !isset($locks[md5(PgsqlMutex::class . $name)]);
     }
