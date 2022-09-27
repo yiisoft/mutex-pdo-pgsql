@@ -18,17 +18,15 @@ use function unpack;
 final class PgsqlMutex extends Mutex
 {
     private array $lockKeys;
-    private PDO $connection;
 
     /**
      * @param string $name Mutex name.
      * @param PDO $connection PDO connection instance to use.
      */
-    public function __construct(string $name, PDO $connection)
+    public function __construct(string $name, private PDO $connection)
     {
         // Converts a string into two 16-bit integer keys using the SHA1 hash function.
         $this->lockKeys = array_values(unpack('n2', sha1($name, true)));
-        $this->connection = $connection;
 
         /** @var string $driverName */
         $driverName = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
