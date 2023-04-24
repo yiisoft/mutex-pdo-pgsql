@@ -13,14 +13,11 @@ use Yiisoft\Mutex\MutexInterface;
  */
 final class PgsqlMutexFactory extends MutexFactory
 {
-    private PDO $connection;
-
     /**
      * @param PDO $connection PDO connection instance to use.
      */
-    public function __construct(PDO $connection)
+    public function __construct(private PDO $connection)
     {
-        $this->connection = $connection;
     }
 
     public function create(string $name): MutexInterface
