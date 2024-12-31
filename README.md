@@ -6,9 +6,9 @@
     <br>
 </p>
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/mutex-pdo-pgsql/v/stable.png)](https://packagist.org/packages/yiisoft/mutex-pdo-pgsql)
-[![Total Downloads](https://poser.pugx.org/yiisoft/mutex-pdo-pgsql/downloads.png)](https://packagist.org/packages/yiisoft/mutex-pdo-pgsql)
-[![Build status](https://github.com/yiisoft/mutex-pdo-pgsql/workflows/build/badge.svg)](https://github.com/yiisoft/mutex-pdo-pgsql/actions?query=workflow%3Abuild)
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/mutex-pdo-pgsql/v)](https://packagist.org/packages/yiisoft/mutex-pdo-pgsql)
+[![Total Downloads](https://poser.pugx.org/yiisoft/mutex-pdo-pgsql/downloads)](https://packagist.org/packages/yiisoft/mutex-pdo-pgsql)
+[![Build status](https://github.com/yiisoft/mutex-pdo-pgsql/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/mutex-pdo-pgsql/actions/workflows/build.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/mutex-pdo-pgsql/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/mutex-pdo-pgsql/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/mutex-pdo-pgsql/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/mutex-pdo-pgsql/?branch=master)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fmutex-pdo-pgsql%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/mutex-pdo-pgsql/master)
