@@ -9,13 +9,7 @@ permissions:
 
 jobs:
   roave_bc_check:
-    name: Roave BC Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Roave BC Check
-        uses: docker://nyholm/roave-bc-check-ga@sha256:a9d3d932a4d3ba6a5a0563ef3788918a538198ee9c061a153f9b55caa8d3625f
+    uses: yiisoft/actions/.github/workflows/bc.yml@master
+    with:
+      php: '["8.4"]'
+      composer-require-options: '--with-all-dependencies --ignore-platform-req=php --no-progress --ansi'
