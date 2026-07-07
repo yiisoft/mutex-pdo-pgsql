@@ -13,6 +13,9 @@ on:
     branches: ['master']
     paths: *paths
 
+permissions:
+  contents: read
+
 jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
@@ -31,7 +34,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:13
+        image: postgres:13 # zizmor: ignore[unpinned-images]
         env:
           POSTGRES_USER: root
           POSTGRES_PASSWORD: root-password
@@ -42,10 +45,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
 
       - name: Install PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.extensions }}
@@ -53,11 +58,25 @@ jobs:
           coverage: pcov
           tools: composer:v2
 
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
+      - name: Determine composer cache directory
+        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> "$GITHUB_ENV"
+
+      - name: Cache dependencies installed with composer
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ${{ env.COMPOSER_CACHE_DIR }}
+          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            php${{ matrix.php }}-composer-
+
+      - name: Update composer
+        run: composer self-update
+
+      - name: Install dependencies with composer
+        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Run infection
         run: |
-          vendor/bin/roave-infection-static-analysis-plugin --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --only-covered
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
