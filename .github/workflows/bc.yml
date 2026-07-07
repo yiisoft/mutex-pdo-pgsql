@@ -1,8 +1,14 @@
+name: backwards compatibility
+
 on:
   pull_request:
+    paths: &paths
+      - 'src/**'
+      - '.github/workflows/bc.yml'
+      - 'composer.json'
   push:
-
-name: backwards compatibility
+    branches: ['master']
+    paths: *paths
 
 permissions:
   contents: read
