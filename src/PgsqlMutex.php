@@ -26,7 +26,13 @@ final class PgsqlMutex extends Mutex
      */
     public function __construct(string $name, PDO $connection)
     {
-        // Converts a string into two 16-bit integer keys using the SHA1 hash function.
+        /**
+         * Converts a string into two 16-bit integer keys using the SHA1 hash function.
+         *
+         * @psalm-suppress PossiblyFalseArgument `unpack()` never returns `false` here because `sha1(...)` with raw
+         * output always returns a 20-byte string, which is more than enough for the 4 bytes required by the 'n2' format
+         * (two unsigned 16-bit big-endian integers).
+         */
         $this->lockKeys = array_values(unpack('n2', sha1($name, true)));
         $this->connection = $connection;
 
