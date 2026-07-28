@@ -41,6 +41,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             ->getParentClass()
             ->getStaticPropertyValue('currentProcessLocks');
 
-        return !isset($locks[md5(PgsqlMutex::class.$name)]);
+        return !isset($locks[md5(PgsqlMutex::class . $name)]);
     }
 }
