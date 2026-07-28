@@ -32,10 +32,13 @@
         "yiisoft/mutex": "^1.1"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
         "phpunit/phpunit": "^9.6.35",
+        "rector/rector": "^2.5",
         "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.30 || ^5.26.1 || ^6.16.1"
+        "vimeo/psalm": "^4.30 || ^5.26.1 || ^6.16.1",
+        "yiisoft/code-style": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -55,8 +58,10 @@
         }
     },
     "scripts": {
+        "cs-fix": "php-cs-fixer fix",
+        "psalm": "psalm",
+        "rector": "rector",
         "test": "phpunit --testdox --no-interaction",
-        "test-watch": "phpunit-watcher watch",
-        "psalm": "psalm"
+        "test-watch": "phpunit-watcher watch"
     }
 }
