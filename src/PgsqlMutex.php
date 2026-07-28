@@ -21,8 +21,8 @@ final class PgsqlMutex extends Mutex
     private PDO $connection;
 
     /**
-     * @param string $name Mutex name.
-     * @param PDO $connection PDO connection instance to use.
+     * @param string $name       Mutex name.
+     * @param PDO    $connection PDO connection instance to use.
      */
     public function __construct(string $name, PDO $connection)
     {
