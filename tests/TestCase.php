@@ -23,9 +23,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function connection(): PDO
     {
-        if ($this->connection === null) {
-            $this->connection = $this->createConnection();
-        }
+        $this->connection ??= $this->createConnection();
 
         return $this->connection;
     }
