@@ -23,14 +23,12 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function connection(): PDO
     {
-        if ($this->connection === null) {
-            $this->connection = new PDO(
-                'pgsql:host=127.0.0.1;dbname=yiitest',
-                'root',
-                'root-password',
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
-            );
-        }
+        $this->connection ??= new PDO(
+            'pgsql:host=127.0.0.1;dbname=yiitest',
+            'root',
+            'root-password',
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
+        );
 
         return $this->connection;
     }
