@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PDO;
 use Yiisoft\Mutex\Mutex;
 
+use function array_map;
 use function array_values;
 use function sha1;
 use function unpack;
@@ -27,13 +28,16 @@ final class PgsqlMutex extends Mutex
     public function __construct(string $name, PDO $connection)
     {
         /**
-         * Converts a string into two 16-bit integer keys using the SHA1 hash function.
+         * Decode the first eight hash bytes in big-endian order and normalize to PostgreSQL signed int4 keys.
+         * On 32-bit PHP, unpack() already returns signed integers for words with the high bit set.
          *
          * @psalm-suppress PossiblyFalseArgument `unpack()` never returns `false` here because `sha1(...)` with raw
-         * output always returns a 20-byte string, which is more than enough for the 4 bytes required by the 'n2' format
-         * (two unsigned 16-bit big-endian integers).
+         * output always returns a 20-byte string, enough for the eight bytes required by the 'N2' format.
          */
-        $this->lockKeys = array_values(unpack('n2', sha1($name, true)));
+        $this->lockKeys = array_values(array_map(
+            static fn(int $key): int => $key > 0x7FFFFFFF ? $key - 0x100000000 : $key,
+            unpack('N2', sha1($name, true)),
+        ));
         $this->connection = $connection;
 
         /** @var string $driverName */
