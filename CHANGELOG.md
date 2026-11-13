@@ -1,6 +1,6 @@
 # Yii Postgres Mutex Change Log
 
-## 1.1.1 under development
+## 1.2.0 November 13, 2026
 
 - Enh #57: Use the full 64-bit PostgreSQL advisory-lock keyspace to reduce contention between unrelated mutex names,
   as reported by @batyrmastyr; require a coordinated worker rollout as described in [UPGRADE.md](UPGRADE.md)
