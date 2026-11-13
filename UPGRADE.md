@@ -7,7 +7,7 @@ application when you upgrade the package from one version to another.
 > to upgrade from version A to version C and there is version B between A and C, you need
 > to follow the instructions for both A and B.
 
-## Upgrade from 1.1 to 1.2.0
+## Upgrade from 1.1 to 1.2
 
 ### Full-width advisory lock keys
 
