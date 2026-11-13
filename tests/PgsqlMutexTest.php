@@ -8,10 +8,7 @@ use InvalidArgumentException;
 use PDO;
 use Yiisoft\Mutex\Pgsql\PgsqlMutex;
 
-use function array_values;
 use function microtime;
-use function sha1;
-use function unpack;
 
 final class PgsqlMutexTest extends TestCase
 {
@@ -83,17 +80,52 @@ final class PgsqlMutexTest extends TestCase
         $this->assertTrue($mutex->acquire());
         $this->assertFalse($this->isFreeLock($mutex, $mutexName));
 
-        unset($mutex);
+        $observer = $this->createConnection();
+        try {
+            $statement = $observer->prepare('SELECT pg_try_advisory_lock(-1579030975, -145821831)');
+            $statement->execute();
+            $this->assertFalse($statement->fetchColumn());
 
-        [$key1, $key2] = array_values(unpack('n2', sha1($mutexName, true)));
-        $statement = $this
-            ->connection()
-            ->prepare('SELECT pg_advisory_unlock(:key1, :key2)');
-        $statement->bindValue(':key1', $key1);
-        $statement->bindValue(':key2', $key2);
-        $statement->execute();
+            unset($mutex);
 
-        $this->assertFalse((bool) $statement->fetchColumn());
+            $statement->execute();
+            $this->assertTrue($statement->fetchColumn());
+        } finally {
+            $observer->query('SELECT pg_advisory_unlock_all()');
+        }
+    }
+
+    public static function prepareModeProvider(): array
+    {
+        return [
+            'native prepares' => [false],
+            'emulated prepares' => [true],
+        ];
+    }
+
+    /**
+     * @dataProvider prepareModeProvider
+     */
+    public function testFullWidthLockExcludesAnotherSessionUntilRelease(bool $emulatePrepares): void
+    {
+        $this->connection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, $emulatePrepares);
+        $mutex = $this->createMutex('app:job:send-mail');
+        $observer = $this->createConnection();
+
+        try {
+            $this->assertTrue($mutex->acquire());
+            $statement = $observer->prepare('SELECT pg_try_advisory_lock(1132950929, -43075096)');
+            $statement->execute();
+            $this->assertFalse($statement->fetchColumn());
+
+            $mutex->release();
+
+            $statement->execute();
+            $this->assertTrue($statement->fetchColumn());
+        } finally {
+            $mutex->release();
+            $observer->query('SELECT pg_advisory_unlock_all()');
+        }
     }
 
     public function testConstructorFailure(): void
