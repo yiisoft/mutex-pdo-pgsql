@@ -18,6 +18,7 @@ use function unpack;
  */
 final class PgsqlMutex extends Mutex
 {
+    /** @var list<int> */
     private array $lockKeys;
     private PDO $connection;
 
@@ -31,12 +32,12 @@ final class PgsqlMutex extends Mutex
          * Decode the first eight hash bytes in big-endian order and normalize to PostgreSQL signed int4 keys.
          * On 32-bit PHP, unpack() already returns signed integers for words with the high bit set.
          *
-         * @psalm-suppress PossiblyFalseArgument `unpack()` never returns `false` here because `sha1(...)` with raw
-         * output always returns a 20-byte string, enough for the eight bytes required by the 'N2' format.
+         * `unpack()` never returns `false` here because `sha1(...)` with raw output always returns a 20-byte string,
+         * enough for the eight bytes required by the 'N2' format.
          */
         $this->lockKeys = array_values(array_map(
-            static fn(int $key): int => $key > 0x7FFFFFFF ? $key - 0x100000000 : $key,
-            unpack('N2', sha1($name, true)),
+            static fn(int $key): int => $key > 0x7FFFFFFF ? $key - 0x100000000 : $key, // @phpstan-ignore argument.type
+            unpack('N2', sha1($name, true)), // @phpstan-ignore argument.type
         ));
         $this->connection = $connection;
 

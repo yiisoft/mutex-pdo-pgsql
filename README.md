@@ -12,7 +12,6 @@
 [![Code Coverage](https://codecov.io/gh/yiisoft/mutex-pdo-pgsql/branch/master/graph/badge.svg)](https://codecov.io/gh/yiisoft/mutex-pdo-pgsql)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fmutex-pdo-pgsql%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/mutex-pdo-pgsql/master)
 [![static analysis](https://github.com/yiisoft/mutex-pdo-pgsql/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/mutex-pdo-pgsql/actions?query=workflow%3A%22static+analysis%22)
-[![type-coverage](https://shepherd.dev/github/yiisoft/mutex-pdo-pgsql/coverage.svg)](https://shepherd.dev/github/yiisoft/mutex-pdo-pgsql)
 
 This library provides a PostgreSQL mutex implementation for [yiisoft/mutex](https://github.com/yiisoft/mutex).
 
