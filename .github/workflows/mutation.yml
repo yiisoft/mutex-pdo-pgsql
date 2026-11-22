@@ -8,7 +8,7 @@ on:
       - '.github/workflows/mutation.yml'
       - 'composer.json'
       - 'infection.json.dist'
-      - 'psalm.xml'
+      - 'phpstan.neon'
   push:
     branches: ['master']
     paths: *paths
