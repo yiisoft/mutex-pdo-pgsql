@@ -39,6 +39,28 @@ jobs:
           - 11
           - 12
           - 13
+        include:
+          - os: ubuntu-latest
+            php: 7.4
+            pgsql: 13
+          - os: ubuntu-latest
+            php: 8.0
+            pgsql: 13
+          - os: ubuntu-latest
+            php: 8.2
+            pgsql: 13
+          - os: ubuntu-latest
+            php: 8.3
+            pgsql: 13
+          - os: ubuntu-latest
+            php: 8.4
+            pgsql: 13
+          - os: ubuntu-latest
+            php: 8.5
+            pgsql: 13
+          - os: ubuntu-latest
+            php: 8.6
+            pgsql: 13
 
     services:
       postgres:

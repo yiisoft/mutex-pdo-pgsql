@@ -3,6 +3,7 @@
 ## 1.2.1 under development
 
 - Chg #60: Replace Psalm with PHPStan (@vjik)
+- Chg #61: Change PHP constraint in `composer.json` to `7.4.* || 8.0 - 8.6` (@vjik)
 
 ## 1.2.0 November 13, 2026
 
