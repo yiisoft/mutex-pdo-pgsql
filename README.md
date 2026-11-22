@@ -17,7 +17,7 @@ This library provides a PostgreSQL mutex implementation for [yiisoft/mutex](http
 
 ## Requirements
 
-- PHP 7.4 or higher.
+- PHP 7.4 - 8.6.
 - `PDO` PHP extension.
 
 ## Installation

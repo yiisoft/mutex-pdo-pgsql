@@ -37,10 +37,15 @@ final class PgsqlMutexKeyTest extends TestCase
         $statement->expects($this->exactly(2))->method('fetchColumn')->willReturn(true);
         $connection = $this->createMock(PDO::class);
         $connection->method('getAttribute')->with(PDO::ATTR_DRIVER_NAME)->willReturn('pgsql');
-        $connection->expects($this->exactly(2))->method('prepare')->willReturnMap([
-            ['SELECT pg_try_advisory_lock(:key1, :key2)', [], $statement],
-            ['SELECT pg_advisory_unlock(:key1, :key2)', [], $statement],
-        ]);
+        $connection->expects($this->exactly(2))->method('prepare')->willReturnCallback(
+            function (string $query) use ($statement): PDOStatement {
+                $this->assertContains($query, [
+                    'SELECT pg_try_advisory_lock(:key1, :key2)',
+                    'SELECT pg_advisory_unlock(:key1, :key2)',
+                ]);
+                return $statement;
+            },
+        );
         $mutex = new PgsqlMutex($name, $connection);
 
         $this->assertTrue($mutex->acquire());
